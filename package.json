@@ -1,0 +1,29 @@
+{
+  "name": "onyx",
+  "version": "1.0.0",
+  "description": "A new vector tile server (to take over pietra and spinel)",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/un-vector-tile-toolkit/onyx.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/un-vector-tile-toolkit/onyx/issues"
+  },
+  "homepage": "https://github.com/un-vector-tile-toolkit/onyx#readme",
+  "dependencies": {
+    "@mapbox/mbtiles": "^0.10.0",
+    "config": "^3.0.1",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "hjson": "^3.1.2",
+    "morgan": "^1.9.1",
+    "spdy": "^4.0.0"
+  }
+}
