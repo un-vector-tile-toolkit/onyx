@@ -6,6 +6,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 const winston = require('winston')
 const MBTiles = require('@mapbox/mbtiles')
+const TimeFormat = require('hh-mm-ss')
 
 // config constants
 const morganFormat = config.get('morganFormat')
@@ -38,22 +39,19 @@ logger.stream = {
 
 // auto-eject mechanism
 setInterval(async () => {
-  logger.info(`auto-eject from ${Object.keys(mbtilesPool).length}`)
-/*
+  logger.info(`${Object.keys(mbtilesPool).length} mbtiles are open. Start auto-eject.`)
   if (busy) {
-    logger.info('return because busy')
-    return
-  }
+    logger.info('auto-eject canceled because the server is busy.')
+  } else 
   for (mbtilesPath in mbtilesPool) {
-    let mtime = fs.statSync(mbtilesPath).mtime
-    if (true || mtime > mbtilesPool.mbtilesPath.openTime) {
+    let timeDiff = fs.statSync(mbtilesPath).mtime - mbtilesPool[mbtilesPath].openTime
+    if (timeDiff > 0) {
       mbtilesPool[mbtilesPath].mbtiles.close(() => {
-        logger.info(`closed ${mbtilesPath}`)
+        logger.info(`closed ${mbtilesPath} (${TimeFormat.fromMs(timeDiff)} newer)`)
         delete mbtilesPool[mbtilesPath]
       })
     }
   }
-*/
 }, ejectInterval)
 
 // app
@@ -66,7 +64,7 @@ app.use(express.static(htdocsPath))
 
 const getMBTiles = async (t, z, x, y) => {
   let mbtilesPath = ''
-  if (!tz[t]) tz[t] = 6
+  if (!tz[t]) tz[t] = defaultZ
   if (z < tz[t]) {
     mbtilesPath = `${mbtilesDir}/${t}/0-0-0.mbtiles`
   } else {
