@@ -4,9 +4,10 @@ const express = require('express')
 const spdy = require('spdy')
 const cors = require('cors')
 const morgan = require('morgan')
-const winston = require('winston')
 const MBTiles = require('@mapbox/mbtiles')
 const TimeFormat = require('hh-mm-ss')
+const winston = require('winston')
+const DailyRotateFile = require('winston-daily-rotate-file')
 
 // config constants
 const morganFormat = config.get('morganFormat')
@@ -15,26 +16,30 @@ const privkeyPath = config.get('privkeyPath')
 const fullchainPath = config.get('fullchainPath')
 const chainPath = config.get('chainPath')
 const port = config.get('port') 
+const ejectInterval = config.get('ejectInterval')
+const defaultZ = config.get('defaultZ')
+const mbtilesDir = config.get('mbtilesDir')
+const fontsDir = config.get('fontsDir')
+const logDirPath = config.get('logDirPath')
 
 // global variables
 let mbtilesPool = {}
 let tz = config.get('tz')
 let busy = false
 
-// global constants
-const ejectInterval = config.get('ejectInterval')
-const defaultZ = config.get('defaultZ')
-const mbtilesDir = config.get('mbtilesDir')
-const fontsDir = config.get('fontsDir')
-
 // logger configuration
 const logger = winston.createLogger({
   transports: [
-    new winston.transports.Console({ json: false, colorize: true })
+    new winston.transports.Console(),
+    new DailyRotateFile({
+      filename: `${logDirPath}/onyx-%DATE%.log`,
+      datePattern: 'YYYY-MM-DD'
+    })
   ]
 })
+
 logger.stream = {
-  write: (message) => { logger.info(message) }
+  write: (message) => { logger.info(message.trim()) }
 }
 
 // auto-eject mechanism
@@ -71,7 +76,6 @@ const getMBTiles = async (t, z, x, y) => {
     mbtilesPath =
       `${mbtilesDir}/${t}/${tz[t]}-${x >> (z - tz[t])}-${y >> (z - tz[t])}.mbtiles`
   }
-logger.info(mbtilesPath)
   return new Promise((resolve, reject) => {
     if (mbtilesPool[mbtilesPath]) {
       resolve(mbtilesPool[mbtilesPath].mbtiles)
@@ -127,6 +131,8 @@ app.get(`/zxy/:t/:z/:x/:y.pbf`, async (req, res) => {
       res.status(404).send(`tile not found: /zxy/${t}/${z}/${x}/${y}.pbf`)
       busy = false
     })
+  }).catch(e => {
+    res.status(404).send(`mbtiles not found for /zxy/${t}/${z}/${x}/${y}.pbf`)
   })
 })
 
