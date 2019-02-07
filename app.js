@@ -104,7 +104,7 @@ const getTile = async (mbtiles, z, x, y) => {
       if (err) {
         reject()
       } else {
-        resolve(tile)
+        resolve({tile: tile, headers: headers})
       }
     })
   })
@@ -117,11 +117,13 @@ app.get(`/zxy/:t/:z/:x/:y.pbf`, async (req, res) => {
   const x = parseInt(req.params.x)
   const y = parseInt(req.params.y)
   getMBTiles(t, z, x, y).then(mbtiles => {
-    getTile(mbtiles, z, x, y).then(tile => {
-      if (tile) {
+    getTile(mbtiles, z, x, y).then(r => {
+      if (r.tile) {
         res.set('content-type', 'application/vnd.mapbox-vector-tile')
         res.set('content-encoding', 'gzip')
-        res.send(tile)
+        res.set('last-modified', r.headers['Last-Modified'])
+        res.set('etag', r.headers['ETag'])
+        res.send(r.tile)
         busy = false
       } else {
         res.status(404).send(`tile not found: /zxy/${t}/${z}/${x}/${y}.pbf`)
