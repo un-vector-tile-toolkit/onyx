@@ -16,7 +16,6 @@ const privkeyPath = config.get('privkeyPath')
 const fullchainPath = config.get('fullchainPath')
 const chainPath = config.get('chainPath')
 const port = config.get('port') 
-const ejectInterval = config.get('ejectInterval')
 const defaultZ = config.get('defaultZ')
 const mbtilesDir = config.get('mbtilesDir')
 const fontsDir = config.get('fontsDir')
@@ -41,23 +40,6 @@ const logger = winston.createLogger({
 logger.stream = {
   write: (message) => { logger.info(message.trim()) }
 }
-
-// auto-eject mechanism
-setInterval(async () => {
-  logger.info(`${Object.keys(mbtilesPool).length} mbtiles are open. Start auto-eject.`)
-  if (busy) {
-    logger.info('auto-eject canceled because the server is busy.')
-  } else 
-  for (mbtilesPath in mbtilesPool) {
-    let timeDiff = fs.statSync(mbtilesPath).mtime - mbtilesPool[mbtilesPath].openTime
-    if (timeDiff > 0) {
-      mbtilesPool[mbtilesPath].mbtiles.close(() => {
-        logger.info(`closed ${mbtilesPath} (${TimeFormat.fromMs(timeDiff)} newer)`)
-        delete mbtilesPool[mbtilesPath]
-      })
-    }
-  }
-}, ejectInterval)
 
 // app
 const app = express()

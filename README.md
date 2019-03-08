@@ -26,7 +26,6 @@ vi config/default.hjson
   tz: {
     tapioca: 6
   }
-  ejectInterval: 10000
   defaultZ: 6
   mbtilesDir: /somewhere/mbtiles
   fontsDir: /somewhere/fonts
