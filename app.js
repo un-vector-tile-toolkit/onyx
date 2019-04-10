@@ -14,7 +14,6 @@ const morganFormat = config.get('morganFormat')
 const htdocsPath = config.get('htdocsPath')
 const privkeyPath = config.get('privkeyPath')
 const fullchainPath = config.get('fullchainPath')
-const chainPath = config.get('chainPath')
 const port = config.get('port') 
 const defaultZ = config.get('defaultZ')
 const mbtilesDir = config.get('mbtilesDir')
@@ -135,6 +134,5 @@ app.get(`/fonts/:fontstack/:range.pbf`, (req, res) => {
 
 spdy.createServer({
   key: fs.readFileSync(privkeyPath),
-  cert: fs.readFileSync(fullchainPath),
-  ca: fs.readFileSync(chainPath)
+  cert: fs.readFileSync(fullchainPath)
 }, app).listen(port)
