@@ -19,6 +19,7 @@ vi config/default.hjson
 {
   morganFormat: tiny
   htdocsPath: htdocs
+  port: 3000
   privkeyPath: /somewhere/privkey.pem
   fullchainPath: /somewhere/fullchain.pem
   chainPath: /somewhere/chain.pem
